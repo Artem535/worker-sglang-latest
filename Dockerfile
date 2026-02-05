@@ -1,9 +1,7 @@
 FROM lmsysorg/sglang:latest-cu130
 
-# Install uv package manager
-RUN curl -Ls https://astral.sh/uv/install.sh | sh \
-    && ln -sf /root/.local/bin/uv /usr/local/bin/uv
-ENV PATH="/root/.local/bin:${PATH}"
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Set working directory to the one already used by the base image
 WORKDIR /sgl-workspace
@@ -11,7 +9,7 @@ WORKDIR /sgl-workspace
 # install dependencies
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system -r requirements.txt
+    uv pip install --python /opt/venv/bin/python -r requirements.txt
 
 # copy source files
 COPY handler.py engine.py utils.py download_model.py test_input.json ./
@@ -43,7 +41,7 @@ RUN --mount=type=secret,id=HF_TOKEN,required=false \
         export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
     fi && \
     if [ -n "$MODEL_NAME" ]; then \
-        python3 download_model.py; \
+        /opt/venv/bin/python download_model.py; \
     fi
 
-CMD ["python3", "handler.py"]
+CMD ["/opt/venv/bin/python", "handler.py"]
