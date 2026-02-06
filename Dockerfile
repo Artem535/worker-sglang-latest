@@ -47,7 +47,7 @@ RUN --mount=type=secret,id=HF_TOKEN,required=false \
         export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
     fi && \
     if [ -n "$MODEL_NAME" ]; then \
-        python download_model.py; \
+        python3 download_model.py; \
     fi
 
-CMD ["python", "handler.py"]
+CMD ["python3", "handler.py"]
