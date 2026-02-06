@@ -12,7 +12,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --python /opt/venv/bin/python -r requirements.txt
 
 # copy source files
-COPY handler.py engine.py utils.py download_model.py test_input.json ./
+COPY handler.py engine.py utils.py download_model.py ./
 COPY public/ ./public/
 
 # Setup for Option 2: Building the Image with the Model included
