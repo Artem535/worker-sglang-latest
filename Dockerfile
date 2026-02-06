@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install -r requirements.txt
 
 # Copy source files
-COPY handler.py engine.py utils.py download_model.py test_input.json ./
+COPY handler.py engine.py utils.py download_model.py ./
 COPY public/ ./public/
 
 # Model configuration arguments
