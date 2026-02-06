@@ -62,6 +62,7 @@ class SGlangEngine:
             "SAMPLING_BACKEND": "--sampling-backend",
             "TOOL_CALL_PARSER": "--tool-call-parser",
             "REASONING_PARSER": "--reasoning-parser",
+            "FP8-GEMM_BACKEND": "--fp8-gemm-backend",
         }
 
         # Boolean flags
