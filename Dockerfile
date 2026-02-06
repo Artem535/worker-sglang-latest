@@ -1,21 +1,26 @@
 FROM lmsysorg/sglang:latest-cu130
 
+# Create virtual environment
 RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
 
-# Set working directory to the one already used by the base image
+# Activate venv: uv respects VIRTUAL_ENV variable
+ENV VIRTUAL_ENV="/opt/venv" \
+    PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
 WORKDIR /sgl-workspace
 
-# install dependencies
+# Install dependencies with uv
+# uv automatically detects Python from venv via VIRTUAL_ENV
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --python /opt/venv/bin/python -r requirements.txt
+    uv pip install -r requirements.txt
 
-# copy source files
-COPY handler.py engine.py utils.py download_model.py ./
+# Copy source files
+COPY handler.py engine.py utils.py download_model.py test_input.json ./
 COPY public/ ./public/
 
-# Setup for Option 2: Building the Image with the Model included
+# Model configuration arguments
 ARG MODEL_NAME=""
 ARG TOKENIZER_NAME=""
 ARG BASE_PATH="/runpod-volume"
@@ -34,14 +39,14 @@ ENV MODEL_NAME=$MODEL_NAME \
     HF_HOME="${BASE_PATH}/huggingface-cache/hub" \
     HF_HUB_ENABLE_HF_TRANSFER=1
 
-# Model download script execution
-# Ensure this script uses python3 and handles paths correctly relative to /app if needed
+# Download model using python from venv
 RUN --mount=type=secret,id=HF_TOKEN,required=false \
     if [ -f /run/secrets/HF_TOKEN ]; then \
         export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
     fi && \
     if [ -n "$MODEL_NAME" ]; then \
-        /opt/venv/bin/python download_model.py; \
+        python download_model.py; \
     fi
 
-CMD ["/opt/venv/bin/python", "handler.py"]
+# Run via python from venv (PATH already configured)
+CMD ["python", "handler.py"]
